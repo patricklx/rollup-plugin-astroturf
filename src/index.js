@@ -6,8 +6,13 @@ export default function astroturf({include, exclude, ...rest} = {}) {
   const filter = createFilter(include || /\.(jsx?|tsx?)/i, exclude)
   const cssLookup = {}
   const pathMap = {}
+  let server = null
   return {
     name: 'astroturf',
+
+    configureServer(s) {
+      server = s;
+    },
 
     load(id) {
       return cssLookup[id];
@@ -27,6 +32,18 @@ export default function astroturf({include, exclude, ...rest} = {}) {
 
       Object.assign(cssLookup, Object.fromEntries(generatedFiles.map(({fullPath, code}) => ([fullPath, code]))))
       Object.assign(pathMap, Object.fromEntries(generatedFiles.map(({importPath, fullPath}) => ([importPath, fullPath]))))
+
+      if (server) {
+        for (const fullPath of Object.keys(cssLookup)) {
+          if (cssLookup[fullPath] === cssLookupCopy[fullPath]) continue;
+          const module = server.moduleGraph.getModuleById(fullPath);
+          if (module) {
+            console.log('invalidate', fullPath);
+            server.moduleGraph.invalidateModule(module);
+          }
+        }
+      }
+      
       return {
         code: transformedCode,
         map: sourceMap
