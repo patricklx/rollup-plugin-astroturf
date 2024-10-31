@@ -30,6 +30,8 @@ export default function astroturf({include, exclude, ...rest} = {}) {
         ...rest
       })
 
+      const cssLookupCopy = Object.assign({}, cssLookup)
+
       Object.assign(cssLookup, Object.fromEntries(generatedFiles.map(({fullPath, code}) => ([fullPath, code]))))
       Object.assign(pathMap, Object.fromEntries(generatedFiles.map(({importPath, fullPath}) => ([importPath, fullPath]))))
 
