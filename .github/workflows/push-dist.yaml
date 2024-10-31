@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: NullVoxPopuli/action-setup-pnpm@v2.3.1
+      - run: npm install
       - uses: kategengler/put-built-npm-package-contents-on-branch@v2.1.0
         with:
           branch: dist
