@@ -1,5 +1,5 @@
 import { createFilter } from '@rollup/pluginutils';
-import { parseSync, transformFromAstSync } from '@babel/core';
+import { parse, transformFromAst } from '@babel/core';
 import babelPlugin from 'astroturf/plugin'
 
 export default function astroturf({include, exclude, ...rest} = {}) {
@@ -23,9 +23,9 @@ export default function astroturf({include, exclude, ...rest} = {}) {
       if (importee in pathMap) return pathMap[importee];
     },
 
-    transform(code, id) {
+    async transform(code, id) {
       if (!filter(id)) return
-      const {code: transformedCode, generatedFiles, sourceMap} = transform(code, {
+      const {code: transformedCode, generatedFiles, sourceMap} = await transform(code, {
         filename: id,
         ...rest
       })
@@ -55,9 +55,9 @@ export default function astroturf({include, exclude, ...rest} = {}) {
   }
 }
 
-function transform(code, {filename, plugins, ...rest} = {}) {
+async function transform(code, {filename, plugins, ...rest} = {}) {
   plugins = plugins || []
-  const ast = parseSync(code, {
+  const ast = await parse(code, {
     babelrc: false,
     configFile: false,
     filename,
@@ -66,7 +66,7 @@ function transform(code, {filename, plugins, ...rest} = {}) {
       name: 'astroturf'
     }
   });
-  const {metadata, code: transformedCode, map} = transformFromAstSync(ast, code, {
+  const {metadata, code: transformedCode, map} = await transformFromAst(ast, code, {
     filename,
     babelrc: false,
     configFile: false,
