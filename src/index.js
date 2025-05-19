@@ -58,6 +58,8 @@ export default function astroturf({include, exclude, ...rest} = {}) {
 function transform(code, {filename, plugins, ...rest} = {}) {
   plugins = plugins || []
   const ast = parseSync(code, {
+    babelrc: false,
+    configFile: false,
     filename,
     plugins: [...plugins],
     caller: {
